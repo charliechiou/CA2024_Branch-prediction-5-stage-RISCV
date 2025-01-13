@@ -1,0 +1,48 @@
+# 忽略 SBT 生成的目錄和檔案
+/.bloop/
+/.bsp/
+/.vscode/
+/target/
+/project/target/
+/project/project/
+
+# 忽略 IntelliJ IDEA 或其他 IDE 生成的配置檔案
+/.idea/
+/*.iml
+
+# 忽略編譯後的類別檔案
+**/*.class
+**/*.cache
+**/*.log
+**/*.zip
+
+# 忽略編譯過程中的臨時檔案
+**/streams/
+**/zinc/
+**/bg-jobs/
+**/task-temp-directory/
+**/sync/
+**/update_cache_*/
+
+# 忽略 jar 和其他打包檔案
+*.jar
+*.war
+*.ear
+
+# 忽略 OS 相關檔案
+.DS_Store
+Thumbs.db
+
+# 忽略日誌檔案
+*.log
+
+# 忽略 SBT lock 檔案
+*.lock
+
+# 忽略編輯器或系統生成的備份檔案
+*.swp
+*.swo
+*~
+
+/project
+/target
