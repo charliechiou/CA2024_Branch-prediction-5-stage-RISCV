@@ -321,11 +321,11 @@ class PIPELINE extends Module {
     io.exit := true.B
     // io.exit := (IF_ID_.io.SelectedPC.asUInt === 0x684.U(32.W))
     // printf(p"io.exit      : 0x${Hexadecimal(io.exit)}\n")
-    printf(p"============================= \n")
-    printf(p"pc      : 0x${Hexadecimal(IF_ID_.io.SelectedPC)}\n")
-    printf(p"inst      : 0x${Hexadecimal(IF_ID_.io.SelectedInstr)}\n")
+    // printf(p"============================= \n")
+    // printf(p"pc      : 0x${Hexadecimal(IF_ID_.io.SelectedPC)}\n")
+    // printf(p"inst      : 0x${Hexadecimal(IF_ID_.io.SelectedInstr)}\n")
     // printf(p"gp      : 0x${Hexadecimal(RegFile.io.reg_debug)}\n")
-    printf(p"gp      : 0x${RegFile.io.reg_debug}\n")
+    // printf(p"gp      : 0x${RegFile.io.reg_debug}\n")
 
 }
 
