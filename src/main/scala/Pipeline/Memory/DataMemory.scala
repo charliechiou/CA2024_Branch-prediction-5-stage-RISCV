@@ -10,7 +10,7 @@ class DataMemory extends Module {
     val mem_write   = Input(Bool())             // Memory write enable
     val dataOut     = Output(SInt(32.W))        // Data output
   })
-  val Dmemory = Mem(4096, SInt(32.W))
+  val Dmemory = Mem(1024, SInt(32.W))
   io.dataOut := 0.S
 
   when(io.mem_write) {
