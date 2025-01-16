@@ -15,9 +15,11 @@ class PIPELINE extends Module {
     // PC / PC+4
     val PC                  =   Module(new PC)
     val PC4                 =   Module(new PC4)
-
+    val predictor           =   Module(new Predictor)
+    val btb                 =   Module(new BTB)
+    val pc_selector         =   Module(new PCSelector)
     // Memory   
-    val InstMemory          =   Module(new InstMem ("/home/kinzaa/Desktop/5-Stage-RV32I/src/main/scala/Pipeline/test.txt"))
+    val InstMemory          =   Module(new InstMem ("/home/james/5-Stage-RV32I/src/main/scala/Pipeline/test.txt"))
     val DataMemory          =   Module(new DataMemory)
 
     // Helping Units
@@ -37,30 +39,45 @@ class PIPELINE extends Module {
     val Branch_Forward      =   Module(new BranchForward)
     val Structural          =   Module(new StructuralHazard)
 
-    val PC_F = MuxLookup (HazardDetect.io.pc_forward, 0.S, Array (
-        (0.U) -> PC4.io.out.asSInt,
-        (1.U) -> HazardDetect.io.pc_out))
+    pc_selector.io.isBtype := control_module.io.branch
+    pc_selector.io.PC4_old := IF_ID_.io.pc4_out
+    pc_selector.io.target_old := IF_ID_.io.target_old.asUInt
+    pc_selector.io.PC4_new := PC4.io.out
+    pc_selector.io.target_new := btb.io.target
+    pc_selector.io.prediction := predictor.io.prediction
+    pc_selector.io.actual := Branch_M.io.actual
+    pc_selector.io.flush := Branch_M.io.flush
+
+    // val PC_F = MuxLookup (HazardDetect.io.pc_forward, 0.S, Array (
+    //     (0.U) -> PC4.io.out.asSInt,
+    //     (1.U) -> HazardDetect.io.pc_out))
     
-    PC.io.in := PC_F                            // PC_in input
+    PC.io.in := pc_selector.io.PC.asSInt                            // PC_in input
     PC4.io.pc := PC.io.out.asUInt               // PC4_in input <- PC_out
     InstMemory.io.addr := PC.io.out.asUInt      // Address to fetch instruction
+
+    btb.io.inst := InstMemory.io.data
+    btb.io.PC := PC.io.out.asUInt
+
+    predictor.io.taken := Branch_M.io.actual
+    predictor.io.isBtype := btb.io.isBtype
+
+    // val PC_for = MuxLookup (HazardDetect.io.inst_forward, 0.S, Array (
+    //     (0.U) -> PC.io.out,
+    //     (1.U) -> HazardDetect.io.current_pc_out))
     
-    val PC_for = MuxLookup (HazardDetect.io.inst_forward, 0.S, Array (
-        (0.U) -> PC.io.out,
-        (1.U) -> HazardDetect.io.current_pc_out))
-    
-    val Instruction_F = MuxLookup (HazardDetect.io.inst_forward, 0.U, Array (
-        (0.U) -> InstMemory.io.data,
-        (1.U) -> HazardDetect.io.inst_out))
+    // val Instruction_F = MuxLookup (HazardDetect.io.inst_forward, 0.U, Array (
+    //     (0.U) -> InstMemory.io.data,
+    //     (1.U) -> HazardDetect.io.inst_out))
     // Fetch decode pipe connections
     IF_ID_.io.pc_in         := PC.io.out             // PC  out from pc
     IF_ID_.io.pc4_in        := PC4.io.out            // PC4 out from pc4
-    IF_ID_.io.SelectedPC    := PC_for                // Selected PC
-    IF_ID_.io.SelectedInstr := Instruction_F         // Selected Instruction
-
+    IF_ID_.io.target        := btb.io.target.asSInt                // Selected PC
+    IF_ID_.io.SelectedInstr := InstMemory.io.data         // Selected Instruction
+    IF_ID_.io.pred_in       := predictor.io.prediction
     //ImmGenerator Inputs
     ImmGen.io.instr         := IF_ID_.io.SelectedInstr_out    // Instrcution to generate Immidiate Value 32
-    ImmGen.io.pc            := IF_ID_.io.SelectedPC_out.asUInt  // PC to add
+    ImmGen.io.pc            := IF_ID_.io.target_old.asUInt  // PC to add
     
     // Decode connections (Control unit RegFile)
     control_module.io.opcode := IF_ID_.io.SelectedInstr_out(6, 0)   // OPcode to check Instrcution TYpe
@@ -139,7 +156,7 @@ class PIPELINE extends Module {
     HazardDetect.io.ID_EX_memRead   := ID_EX_.io.ctrl_MemRd_out
     HazardDetect.io.ID_EX_rd        := ID_EX_.io.rd_out
     HazardDetect.io.pc_in           := IF_ID_.io.pc4_out.asSInt
-    HazardDetect.io.current_pc      := IF_ID_.io.SelectedPC_out
+    HazardDetect.io.current_pc      := IF_ID_.io.target_old
     
     MEM_WB_M.io.EXMEM_MEMRD         := EX_MEM_M.io.EXMEM_memRd_out      // 0/ 1: data read from memory 
     
@@ -193,16 +210,16 @@ class PIPELINE extends Module {
     
     Branch_M.io.fnct3 := IF_ID_.io.SelectedInstr_out(14, 12)      // Fun3 for(beq,bne....)
     Branch_M.io.branch := control_module.io.branch              // Branch instr yes
-    
+    Branch_M.io.pred := IF_ID_.io.pred_out
     when(HazardDetect.io.pc_forward === 1.B) {
         PC.io.in := HazardDetect.io.pc_out
     }.otherwise {
         when(control_module.io.next_pc_sel === "b01".U) {
-            when(Branch_M.io.br_taken === 1.B && control_module.io.branch === 1.B) {
+            when(Branch_M.io.flush === 1.B && control_module.io.branch === 1.B) {
                 PC.io.in := ImmGen.io.SB_type
                 IF_ID_.io.pc_in := 0.S
                 IF_ID_.io.pc4_in := 0.U
-                IF_ID_.io.SelectedPC:= 0.S
+                IF_ID_.io.target:= 0.S
                 IF_ID_.io.SelectedInstr := 0.U
             }.otherwise {
                 PC.io.in := PC4.io.out.asSInt
@@ -211,13 +228,13 @@ class PIPELINE extends Module {
             PC.io.in := ImmGen.io.UJ_type
             IF_ID_.io.pc_in := 0.S
             IF_ID_.io.pc4_in := 0.U
-            IF_ID_.io.SelectedPC:= 0.S
+            IF_ID_.io.target:= 0.S
             IF_ID_.io.SelectedInstr := 0.U
         }.elsewhen(control_module.io.next_pc_sel === "b11".U) {
             PC.io.in := JALR.io.out.asSInt
             IF_ID_.io.pc_in := 0.S
             IF_ID_.io.pc4_in := 0.U
-            IF_ID_.io.SelectedPC:= 0.S
+            IF_ID_.io.target:= 0.S
             IF_ID_.io.SelectedInstr := 0.U
         }.otherwise {
             PC.io.in := PC4.io.out.asSInt
