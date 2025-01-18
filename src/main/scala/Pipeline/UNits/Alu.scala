@@ -4,34 +4,32 @@ import chisel3.util._
 import AluOpCode._
 
 object AluOpCode {
-                                //    funct7     funct3     opcode
-  val ALU_ADDI    =   0.U(5.W)  // | --- ---- |   000   |  001 0011  |
-  val ALU_ADD     =   0.U(5.W)  // | 000 0000 |   000   |  011 0011  |
-  val ALU_SW      =   0.U(5.W)  // | --- ---- |   010   |  010 0011  |
-  val ALU_LW      =   0.U(5.W)  // | --- ---- |   010   |  000 0011  |
-  val ALU_LUI     =   0.U(5.W)  // | --- ---- |   ---   |  011 0111  |
-  val ALU_AUIPC   =   0.U(5.W)  // | --- ---- |   ---   |  001 0111  |
-  val ALU_SLL     =   1.U(5.W)  // | 000 0000 |   001   |  011 0011  |
-  val ALU_SLLI    =   1.U(5.W)  // | 000 0000 |   001   |  001 0011  |
-  val ALU_SLT     =   2.U(5.W)  // | 000 0000 |   010   |  011 0011  |
-  val ALU_SLTI    =   2.U(5.W)  // | --- ---- |   010   |  001 0011  |
-  val ALU_SLTU    =   3.U(5.W)  // | 000 0000 |   011   |  011 0011  |
-  val ALU_SLTUI   =   3.U(5.W)  // | --- ---- |   011   |  001 0011  |
-  val ALU_XOR     =   4.U(5.W)  // | 000 0000 |   100   |  011 0011  |
-  val ALU_XORI    =   4.U(5.W)  // | --- ---- |   100   |  001 0011  |
-  val ALU_SRL     =   5.U(5.W)  // | 000 0000 |   101   |  011 0011  |
-  val ALU_SRLI    =   5.U(5.W)  // | 000 0000 |   101   |  001 0011  |
-  val ALU_OR      =   6.U(5.W)  // | 000 0000 |   110   |  011 0011  |
-  val ALU_ORI     =   6.U(5.W)  // | --- ---- |   110   |  001 0011  |
-  val ALU_AND     =   7.U(5.W)  // | 000 0000 |   111   |  011 0011  |
-  val ALU_ANDI    =   7.U(5.W)  // | --- ---- |   111   |  001 0011  |
-  val ALU_SUB     =   8.U(5.W)  // | 010 0000 |   000   |  011 0011  |
-  val ALU_SRA     =   13.U(5.W) // | 010 0000 |   101   |  011 0011  |
-  val ALU_SRAI    =   13.U(5.W) // | 010 0000 |   101   |  001 0011  |
-  val ALU_JAL     =   31.U(5.W) // | --- ---- |   ---   |  110 1111  |
-  val ALU_JALR    =   31.U(5.W) // | --- ---- |   000   |  110 0111  |
+  val ALU_ADD     =   0.U(5.W)
+  val ALU_ADDI    =   0.U(5.W)
+  val ALU_SW      =   0.U(5.W)
+  val ALU_LW      =   0.U(5.W)
+  val ALU_LUI     =   0.U(5.W)
+  val ALU_AUIPC   =   0.U(5.W)
+  val ALU_SLL     =   1.U(5.W)
+  val ALU_SLLI    =   1.U(5.W)
+  val ALU_SLT     =   2.U(5.W)
+  val ALU_SLTI    =   2.U(5.W)
+  val ALU_SLTU    =   3.U(5.W)
+  val ALU_SLTUI   =   3.U(5.W)
+  val ALU_XOR     =   4.U(5.W)
+  val ALU_XORI    =   4.U(5.W)
+  val ALU_SRL     =   5.U(5.W)
+  val ALU_SRLI    =   5.U(5.W)
+  val ALU_OR      =   6.U(5.W)
+  val ALU_ORI     =   6.U(5.W)
+  val ALU_AND     =   7.U(5.W)
+  val ALU_ANDI    =   7.U(5.W)
+  val ALU_SUB     =   8.U(5.W)
+  val ALU_SRA     =   13.U(5.W)
+  val ALU_SRAI    =   13.U(5.W)
+  val ALU_JAL     =   31.U(5.W)
+  val ALU_JALR    =   31.U(5.W)
 }
-
 
 class ALU extends Module {
   val io = IO(new Bundle {

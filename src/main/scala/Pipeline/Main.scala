@@ -4,7 +4,7 @@ import chisel3.util._
 
 class PIPELINE extends Module {
     val io = IO(new Bundle {
-        val exit = Output (Bool())
+        val out = Output (SInt(4.W))
     })
     //  Pipes of stages 
     val IF_ID_              =   Module(new IF_ID)
@@ -15,9 +15,11 @@ class PIPELINE extends Module {
     // PC / PC+4
     val PC                  =   Module(new PC)
     val PC4                 =   Module(new PC4)
-
+    val predictor           =   Module(new Predictor)
+    val btb                 =   Module(new BTB)
+    val pc_selector         =   Module(new PCSelector)
     // Memory   
-    val InstMemory          =   Module(new InstMem ("./src/riscv/rv32ui-p-srai.hex"))
+    val InstMemory          =   Module(new InstMem ("/home/james/5-Stage-RV32I/src/main/scala/Pipeline/test.txt"))
     val DataMemory          =   Module(new DataMemory)
 
     // Helping Units
@@ -37,30 +39,45 @@ class PIPELINE extends Module {
     val Branch_Forward      =   Module(new BranchForward)
     val Structural          =   Module(new StructuralHazard)
 
-    val PC_F = MuxLookup (HazardDetect.io.pc_forward, 0.S, Array (
-        (0.U) -> PC4.io.out.asSInt,
-        (1.U) -> HazardDetect.io.pc_out))
+    pc_selector.io.isBtype := control_module.io.branch
+    pc_selector.io.PC4_old := IF_ID_.io.pc4_out
+    pc_selector.io.target_old := IF_ID_.io.target_old.asUInt
+    pc_selector.io.PC4_new := PC4.io.out
+    pc_selector.io.target_new := btb.io.target
+    pc_selector.io.prediction := predictor.io.prediction
+    pc_selector.io.actual := Branch_M.io.actual
+    pc_selector.io.flush := Branch_M.io.flush
+
+    // val PC_F = MuxLookup (HazardDetect.io.pc_forward, 0.S, Array (
+    //     (0.U) -> PC4.io.out.asSInt,
+    //     (1.U) -> HazardDetect.io.pc_out))
     
-    PC.io.in := PC_F                            // PC_in input
+    PC.io.in := pc_selector.io.PC.asSInt                            // PC_in input
     PC4.io.pc := PC.io.out.asUInt               // PC4_in input <- PC_out
     InstMemory.io.addr := PC.io.out.asUInt      // Address to fetch instruction
+
+    btb.io.inst := InstMemory.io.data
+    btb.io.PC := PC.io.out.asUInt
+
+    predictor.io.taken := Branch_M.io.actual
+    predictor.io.isBtype := btb.io.isBtype
+
+    // val PC_for = MuxLookup (HazardDetect.io.inst_forward, 0.S, Array (
+    //     (0.U) -> PC.io.out,
+    //     (1.U) -> HazardDetect.io.current_pc_out))
     
-    val PC_for = MuxLookup (HazardDetect.io.inst_forward, 0.S, Array (
-        (0.U) -> PC.io.out,
-        (1.U) -> HazardDetect.io.current_pc_out))
-    
-    val Instruction_F = MuxLookup (HazardDetect.io.inst_forward, 0.U, Array (
-        (0.U) -> InstMemory.io.data,
-        (1.U) -> HazardDetect.io.inst_out))
+    // val Instruction_F = MuxLookup (HazardDetect.io.inst_forward, 0.U, Array (
+    //     (0.U) -> InstMemory.io.data,
+    //     (1.U) -> HazardDetect.io.inst_out))
     // Fetch decode pipe connections
     IF_ID_.io.pc_in         := PC.io.out             // PC  out from pc
     IF_ID_.io.pc4_in        := PC4.io.out            // PC4 out from pc4
-    IF_ID_.io.SelectedPC    := PC_for                // Selected PC
-    IF_ID_.io.SelectedInstr := Instruction_F         // Selected Instruction
-
+    IF_ID_.io.target        := btb.io.target.asSInt                // Selected PC
+    IF_ID_.io.SelectedInstr := InstMemory.io.data         // Selected Instruction
+    IF_ID_.io.pred_in       := predictor.io.prediction
     //ImmGenerator Inputs
     ImmGen.io.instr         := IF_ID_.io.SelectedInstr_out    // Instrcution to generate Immidiate Value 32
-    ImmGen.io.pc            := IF_ID_.io.SelectedPC_out.asUInt  // PC to add
+    ImmGen.io.pc            := IF_ID_.io.target_old.asUInt  // PC to add
     
     // Decode connections (Control unit RegFile)
     control_module.io.opcode := IF_ID_.io.SelectedInstr_out(6, 0)   // OPcode to check Instrcution TYpe
@@ -114,13 +131,6 @@ class PIPELINE extends Module {
     ID_EX_.io.rs1_data_in        :=   S_rs1DataIn
     ID_EX_.io.rs2_data_in        :=   S_rs2DataIn
 
-    // Hazard detection Unit inputs
-    HazardDetect.io.IF_ID_inst      := IF_ID_.io.SelectedInstr_out
-    HazardDetect.io.ID_EX_memRead   := ID_EX_.io.ctrl_MemRd_out
-    HazardDetect.io.ID_EX_rd        := ID_EX_.io.rd_out
-    HazardDetect.io.pc_in           := IF_ID_.io.pc4_out.asSInt
-    HazardDetect.io.current_pc      := IF_ID_.io.SelectedPC_out
-
     // Stall when forward
     when(HazardDetect.io.ctrl_forward === "b1".U) {
         ID_EX_.io.ctrl_MemWr_in       := 0.U
@@ -141,7 +151,15 @@ class PIPELINE extends Module {
         ID_EX_.io.ctrl_Branch_in     := control_module.io.branch
         ID_EX_.io.ctrl_nextpc_in     := control_module.io.next_pc_sel
     }
-        
+    // Hazard detection Unit inputs
+    HazardDetect.io.IF_ID_inst      := IF_ID_.io.SelectedInstr_out
+    HazardDetect.io.ID_EX_memRead   := ID_EX_.io.ctrl_MemRd_out
+    HazardDetect.io.ID_EX_rd        := ID_EX_.io.rd_out
+    HazardDetect.io.pc_in           := IF_ID_.io.pc4_out.asSInt
+    HazardDetect.io.current_pc      := IF_ID_.io.target_old
+    
+    MEM_WB_M.io.EXMEM_MEMRD         := EX_MEM_M.io.EXMEM_memRd_out      // 0/ 1: data read from memory 
+    
     // Branch forward Unit inputs
     Branch_Forward.io.ID_EX_RD      := ID_EX_.io.rd_out
     Branch_Forward.io.EX_MEM_RD     := EX_MEM_M.io.EXMEM_rd_out 
@@ -165,18 +183,6 @@ class PIPELINE extends Module {
         (8.U) -> RegFile.io.rdata1,
         (9.U) -> RegFile.io.rdata1,
         (10.U) -> RegFile.io.rdata1))
-
-    // Branch Y
-    Branch_M.io.arg_y := MuxLookup (Branch_Forward.io.forward_rs2, 0.S, Array (
-        (0.U) -> RegFile.io.rdata2,
-        (1.U) -> ALU.io.out, 
-        (2.U) -> EX_MEM_M.io.EXMEM_alu_out, 
-        (3.U) -> RegFile.io.w_data, 
-        (4.U) -> DataMemory.io.dataOut, 
-        (5.U) -> RegFile.io.w_data))
-
-    Branch_M.io.fnct3 := IF_ID_.io.SelectedInstr_out(14, 12)      // Fun3 for(beq,bne....)
-    Branch_M.io.branch := control_module.io.branch              // Branch instr yes
     
     // for JALR
     JALR.io.rdata1 := MuxLookup (Branch_Forward.io.forward_rs1, 0.U, Array (
@@ -193,16 +199,27 @@ class PIPELINE extends Module {
         (10.U) -> RegFile.io.w_data.asUInt))
     
     JALR.io.imme := ImmValue.asUInt
+    // Branch Y
+    Branch_M.io.arg_y := MuxLookup (Branch_Forward.io.forward_rs2, 0.S, Array (
+        (0.U) -> RegFile.io.rdata2,
+        (1.U) -> ALU.io.out, 
+        (2.U) -> EX_MEM_M.io.EXMEM_alu_out, 
+        (3.U) -> RegFile.io.w_data, 
+        (4.U) -> DataMemory.io.dataOut, 
+        (5.U) -> RegFile.io.w_data))
     
+    Branch_M.io.fnct3 := IF_ID_.io.SelectedInstr_out(14, 12)      // Fun3 for(beq,bne....)
+    Branch_M.io.branch := control_module.io.branch              // Branch instr yes
+    Branch_M.io.pred := IF_ID_.io.pred_out
     when(HazardDetect.io.pc_forward === 1.B) {
         PC.io.in := HazardDetect.io.pc_out
     }.otherwise {
         when(control_module.io.next_pc_sel === "b01".U) {
-            when(Branch_M.io.br_taken === 1.B && control_module.io.branch === 1.B) {
+            when(Branch_M.io.flush === 1.B && control_module.io.branch === 1.B) {
                 PC.io.in := ImmGen.io.SB_type
                 IF_ID_.io.pc_in := 0.S
                 IF_ID_.io.pc4_in := 0.U
-                IF_ID_.io.SelectedPC:= 0.S
+                IF_ID_.io.target:= 0.S
                 IF_ID_.io.SelectedInstr := 0.U
             }.otherwise {
                 PC.io.in := PC4.io.out.asSInt
@@ -211,13 +228,13 @@ class PIPELINE extends Module {
             PC.io.in := ImmGen.io.UJ_type
             IF_ID_.io.pc_in := 0.S
             IF_ID_.io.pc4_in := 0.U
-            IF_ID_.io.SelectedPC:= 0.S
+            IF_ID_.io.target:= 0.S
             IF_ID_.io.SelectedInstr := 0.U
         }.elsewhen(control_module.io.next_pc_sel === "b11".U) {
             PC.io.in := JALR.io.out.asSInt
             IF_ID_.io.pc_in := 0.S
             IF_ID_.io.pc4_in := 0.U
-            IF_ID_.io.SelectedPC:= 0.S
+            IF_ID_.io.target:= 0.S
             IF_ID_.io.SelectedInstr := 0.U
         }.otherwise {
             PC.io.in := PC4.io.out.asSInt
@@ -230,13 +247,12 @@ class PIPELINE extends Module {
     ID_EX_.io.func3_in          := IF_ID_.io.SelectedInstr_out(14, 12)
     ID_EX_.io.func7_in          := IF_ID_.io.SelectedInstr_out(30)
     ID_EX_.io.rd_in             := IF_ID_.io.SelectedInstr_out(11, 7)
-    ID_EX_.io.ctrl_OpA_in := control_module.io.operand_A    // Operand A selection
-    ID_EX_.io.IFID_pc4_in := IF_ID_.io.pc4_out      // pc+4 from Decode to execute
 
     ALU_Control.io.aluOp            := ID_EX_.io.ctrl_AluOp_out     // Alu op code
     ALU.io.alu_Op                   := ALU_Control.io.out           // Alu op code
     ALU_Control.io.func3            := ID_EX_.io.func3_out          // function 3
     ALU_Control.io.func7            := ID_EX_.io.func7_out          // function 7
+    EX_MEM_M.io.IDEX_rd             := ID_EX_.io.rd_out
     
     // Forwarding Inputs
     Forwarding.io.IDEX_rs1        := ID_EX_.io.rs1_out
@@ -245,6 +261,9 @@ class PIPELINE extends Module {
     Forwarding.io.EXMEM_regWr     := EX_MEM_M.io.EXMEM_reg_w_out
     Forwarding.io.MEMWB_rd        := MEM_WB_M.io.MEMWB_rd_out
     Forwarding.io.MEMWB_regWr     := MEM_WB_M.io.MEMWB_reg_w_out
+    
+    ID_EX_.io.ctrl_OpA_in := control_module.io.operand_A    // Operand A selection
+    ID_EX_.io.IFID_pc4_in := IF_ID_.io.pc4_out      // pc+4 from Decode to execute
     
     val d = Wire(SInt(32.W))
 
@@ -281,7 +300,6 @@ class PIPELINE extends Module {
   
 
     // Execute
-    EX_MEM_M.io.IDEX_rd             := ID_EX_.io.rd_out
     EX_MEM_M.io.IDEX_MEMRD          := ID_EX_.io.ctrl_MemRd_out 
     EX_MEM_M.io.IDEX_MEMWR          := ID_EX_.io.ctrl_MemWr_out
     EX_MEM_M.io.IDEX_MEMTOREG       := ID_EX_.io.ctrl_MemToReg_out
@@ -289,15 +307,12 @@ class PIPELINE extends Module {
     EX_MEM_M.io.IDEX_rs2            := RS2_value
     EX_MEM_M.io.alu_out             := ALU.io.out
   
-
-  
     // Data memory inputs
     DataMemory.io.mem_read          := EX_MEM_M.io.EXMEM_memRd_out 
     DataMemory.io.mem_write         := EX_MEM_M.io.EXMEM_memWr_out
     DataMemory.io.dataIn            := EX_MEM_M.io.EXMEM_rs2_out
     DataMemory.io.addr              := EX_MEM_M.io.EXMEM_alu_out.asUInt
 
-    MEM_WB_M.io.EXMEM_MEMRD         := EX_MEM_M.io.EXMEM_memRd_out      // 0/ 1: data read from memory 
     MEM_WB_M.io.EXMEM_MEMTOREG      := EX_MEM_M.io.EXMEM_memToReg_out
     MEM_WB_M.io.EXMEM_REG_W         := EX_MEM_M.io.EXMEM_reg_w_out
     MEM_WB_M.io.EXMEM_rd            := EX_MEM_M.io.EXMEM_rd_out
@@ -317,15 +332,8 @@ class PIPELINE extends Module {
       d := 0.S
     }
     RegFile.io.w_data := d  // Write back data
-
-    io.exit := true.B
-    // io.exit := (IF_ID_.io.SelectedPC.asUInt === 0x684.U(32.W))
-    // printf(p"io.exit      : 0x${Hexadecimal(io.exit)}\n")
-    // printf(p"============================= \n")
-    // printf(p"pc      : 0x${Hexadecimal(IF_ID_.io.SelectedPC)}\n")
-    // printf(p"inst      : 0x${Hexadecimal(IF_ID_.io.SelectedInstr)}\n")
-    // printf(p"gp      : 0x${Hexadecimal(RegFile.io.reg_debug)}\n")
-    // printf(p"gp      : 0x${RegFile.io.reg_debug}\n")
+  
+    io.out := 0.S
 
 }
 
