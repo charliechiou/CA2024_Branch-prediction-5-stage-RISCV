@@ -19,7 +19,7 @@ class PIPELINE extends Module {
     val btb                 =   Module(new BTB)
     val pc_selector         =   Module(new PCSelector)
     // Memory   
-    val InstMemory          =   Module(new InstMem ("/home/james/5-Stage-RV32I/src/main/scala/Pipeline/test.txt"))
+    val InstMemory          =   Module(new InstMem ("./src/riscv/rv32ui-p-add.hex"))
     val DataMemory          =   Module(new DataMemory)
 
     // Helping Units
