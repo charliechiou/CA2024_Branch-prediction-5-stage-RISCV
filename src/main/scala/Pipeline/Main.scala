@@ -19,7 +19,9 @@ class CPU extends Module {
     val predictor           =   Module(new Predictor)
     val btb                 =   Module(new BTB)
     // Memory   
-    val InstMemory          =   Module(new InstMem ("/home/james/my_cpu/test/output_big_endian.hex"))
+
+    val InstMemory          =   Module(new InstMem ("./src/riscv/rv32ui-p-add.hex"))
+
     val DataMemory          =   Module(new DataMemory)
 
     // Helping Units
