@@ -1,8 +1,9 @@
 package Pipeline
 import chisel3._
 import chisel3.util._
+import chisel3.stage.ChiselStage
 
-class PIPELINE extends Module {
+class CPU extends Module {
     val io = IO(new Bundle {
         val out = Output (SInt(4.W))
     })
@@ -17,9 +18,10 @@ class PIPELINE extends Module {
     val PC4                 =   Module(new PC4)
     val predictor           =   Module(new Predictor)
     val btb                 =   Module(new BTB)
-    val pc_selector         =   Module(new PCSelector)
     // Memory   
+
     val InstMemory          =   Module(new InstMem ("./src/riscv/rv32ui-p-add.hex"))
+
     val DataMemory          =   Module(new DataMemory)
 
     // Helping Units
@@ -39,20 +41,6 @@ class PIPELINE extends Module {
     val Branch_Forward      =   Module(new BranchForward)
     val Structural          =   Module(new StructuralHazard)
 
-    pc_selector.io.isBtype := control_module.io.branch
-    pc_selector.io.PC4_old := IF_ID_.io.pc4_out
-    pc_selector.io.target_old := IF_ID_.io.target_old.asUInt
-    pc_selector.io.PC4_new := PC4.io.out
-    pc_selector.io.target_new := btb.io.target
-    pc_selector.io.prediction := predictor.io.prediction
-    pc_selector.io.actual := Branch_M.io.actual
-    pc_selector.io.flush := Branch_M.io.flush
-
-    // val PC_F = MuxLookup (HazardDetect.io.pc_forward, 0.S, Array (
-    //     (0.U) -> PC4.io.out.asSInt,
-    //     (1.U) -> HazardDetect.io.pc_out))
-    
-    PC.io.in := pc_selector.io.PC.asSInt                            // PC_in input
     PC4.io.pc := PC.io.out.asUInt               // PC4_in input <- PC_out
     InstMemory.io.addr := PC.io.out.asUInt      // Address to fetch instruction
 
@@ -60,7 +48,7 @@ class PIPELINE extends Module {
     btb.io.PC := PC.io.out.asUInt
 
     predictor.io.taken := Branch_M.io.actual
-    predictor.io.isBtype := btb.io.isBtype
+    predictor.io.isBtype := control_module.io.branch
 
     // val PC_for = MuxLookup (HazardDetect.io.inst_forward, 0.S, Array (
     //     (0.U) -> PC.io.out,
@@ -216,13 +204,13 @@ class PIPELINE extends Module {
     }.otherwise {
         when(control_module.io.next_pc_sel === "b01".U) {
             when(Branch_M.io.flush === 1.B && control_module.io.branch === 1.B) {
-                PC.io.in := ImmGen.io.SB_type
+                PC.io.in := Mux(Branch_M.io.actual, IF_ID_.io.target_old, IF_ID_.io.pc4_out.asSInt)
                 IF_ID_.io.pc_in := 0.S
                 IF_ID_.io.pc4_in := 0.U
                 IF_ID_.io.target:= 0.S
                 IF_ID_.io.SelectedInstr := 0.U
             }.otherwise {
-                PC.io.in := PC4.io.out.asSInt
+                PC.io.in := Mux(btb.io.isBtype, Mux(predictor.io.prediction, btb.io.target, PC4.io.out.asSInt), PC4.io.out.asSInt)
             }
         }.elsewhen(control_module.io.next_pc_sel === "b10".U) {
             PC.io.in := ImmGen.io.UJ_type
@@ -237,7 +225,7 @@ class PIPELINE extends Module {
             IF_ID_.io.target:= 0.S
             IF_ID_.io.SelectedInstr := 0.U
         }.otherwise {
-            PC.io.in := PC4.io.out.asSInt
+            PC.io.in := Mux(btb.io.isBtype, Mux(predictor.io.prediction, btb.io.target, PC4.io.out.asSInt), PC4.io.out.asSInt)
         }
     }
     // ID_EX PIPELINE
@@ -337,4 +325,6 @@ class PIPELINE extends Module {
 
 }
 
-
+object MyCPU extends App {
+  (new ChiselStage).emitVerilog(new CPU(), Array("--target-dir", "generated"))
+}
