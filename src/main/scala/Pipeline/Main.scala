@@ -5,7 +5,7 @@ import chisel3.stage.ChiselStage
 
 class CPU extends Module {
     val io = IO(new Bundle {
-        val out = Output (SInt(4.W))
+        val out = Output (SInt(32.W))
     })
     //  Pipes of stages 
     val IF_ID_              =   Module(new IF_ID)
@@ -20,7 +20,7 @@ class CPU extends Module {
     val btb                 =   Module(new BTB)
     // Memory   
 
-    val InstMemory          =   Module(new InstMem ("./src/riscv/rv32ui-p-add.hex"))
+    val InstMemory          =   Module(new InstMem ("./src/main/scala/Pipeline/test_branch_test3.hex"))
 
     val DataMemory          =   Module(new DataMemory)
 
@@ -40,6 +40,19 @@ class CPU extends Module {
     val HazardDetect        =   Module(new HazardDetection)
     val Branch_Forward      =   Module(new BranchForward)
     val Structural          =   Module(new StructuralHazard)
+
+    // Performance counters
+    val cycleCounter = RegInit(0.U(32.W)) // Total cycle counter
+    val branchCounter = RegInit(0.U(32.W)) // Total branches executed
+    val branchHitCounter = RegInit(0.U(32.W)) // Correctly predicted branches
+
+    cycleCounter := cycleCounter + 1.U
+    when(control_module.io.branch === 1.U) {
+      branchCounter := branchCounter + 1.U
+      when(predictor.io.prediction === Branch_M.io.actual) { // Correct prediction
+        branchHitCounter := branchHitCounter + 1.U
+      }
+    }
 
     PC4.io.pc := PC.io.out.asUInt               // PC4_in input <- PC_out
     InstMemory.io.addr := PC.io.out.asUInt      // Address to fetch instruction
@@ -321,8 +334,17 @@ class CPU extends Module {
     }
     RegFile.io.w_data := d  // Write back data
   
-    io.out := 0.S
+    io.out := RegFile.io.debug
 
+    // Debug
+    printf("Cycle: %d\n", cycleCounter)
+    printf("Branches: %d\n", branchCounter)
+    printf("Branches hit: %d\n", branchHitCounter)
+    printf("io.out: %d\n", io.out)
+    printf(p"pc      : 0x${Hexadecimal(IF_ID_.io.target)}\n")
+    printf(p"inst      : 0x${Hexadecimal(IF_ID_.io.SelectedInstr)}\n")
+    printf(p"gp      : 0x${Hexadecimal(RegFile.io.debug)}\n")
+    printf("========================================\n")
 }
 
 object MyCPU extends App {
