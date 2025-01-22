@@ -3,39 +3,42 @@
 .data
 
 _start:
-        li	sp, 0x7ff
+        lui	sp, 0x7ffff
+        addi    sp, sp, 0x000
         addi    sp,sp,-16
         sw      ra,12(sp)
         sw      s0,8(sp)
         addi    s0,sp,16
         li      a1,10
+        # a0 start at the bottom of memory 
+        # a0 = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0}
         li      a0, 0
         mv      t0, a0
-        li      t2, 456
+        li      t2, 9
         sw      t2, 0(t0)
         addi    t0, t0, 4
-        li      t2, 78
+        li      t2, 8
         sw      t2, 0(t0)
         addi    t0, t0, 4
-        li      t2, -796
+        li      t2, 7
         sw      t2, 0(t0)
         addi    t0, t0, 4
-        li      t2, 468
+        li      t2, 6
+        sw      t2, 0(t0)
+        addi    t0, t0, 4
+        li      t2, 5
+        sw      t2, 0(t0)
+        addi    t0, t0, 4
+        li      t2, 4
+        sw      t2, 0(t0)
+        addi    t0, t0, 4
+        li      t2, 3
         sw      t2, 0(t0)
         addi    t0, t0, 4
         li      t2, 2
         sw      t2, 0(t0)
         addi    t0, t0, 4
-        li      t2, -125
-        sw      t2, 0(t0)
-        addi    t0, t0, 4
-        li      t2, 986
-        sw      t2, 0(t0)
-        addi    t0, t0, 4
-        li      t2, -321
-        sw      t2, 0(t0)
-        addi    t0, t0, 4
-        li      t2, 4
+        li      t2, 1
         sw      t2, 0(t0)
         addi    t0, t0, 4
         li      t2, 0

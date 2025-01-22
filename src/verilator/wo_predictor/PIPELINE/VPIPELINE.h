@@ -158,7 +158,7 @@ VL_MODULE(VPIPELINE) {
         IData/*31:0*/ PIPELINE__DOT__ALU__DOT___GEN_8;
         QData/*62:0*/ PIPELINE__DOT__ALU__DOT___GEN_10;
         IData/*31:0*/ PIPELINE__DOT__InstMemory__DOT__imem[4096];
-        IData/*31:0*/ PIPELINE__DOT__DataMemory__DOT__Dmemory[1024];
+        IData/*31:0*/ PIPELINE__DOT__DataMemory__DOT__Dmemory[65536];
     };
     
     // LOCAL VARIABLES

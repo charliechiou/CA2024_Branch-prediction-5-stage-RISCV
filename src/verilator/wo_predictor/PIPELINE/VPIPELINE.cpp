@@ -31,7 +31,7 @@ void VPIPELINE::eval_step() {
             Verilated::debug(1);
             __Vchange = _change_request(vlSymsp);
             Verilated::debug(__Vsaved_debug);
-            VL_FATAL_MT("PIPELINE.v", 1484, "",
+            VL_FATAL_MT("PIPELINE.v", 1438, "",
                 "Verilated model didn't converge\n"
                 "- See DIDNOTCONVERGE in the Verilator manual");
         } else {
@@ -57,7 +57,7 @@ void VPIPELINE::_eval_initial_loop(VPIPELINE__Syms* __restrict vlSymsp) {
             Verilated::debug(1);
             __Vchange = _change_request(vlSymsp);
             Verilated::debug(__Vsaved_debug);
-            VL_FATAL_MT("PIPELINE.v", 1484, "",
+            VL_FATAL_MT("PIPELINE.v", 1438, "",
                 "Verilated model didn't DC converge\n"
                 "- See DIDNOTCONVERGE in the Verilator manual");
         } else {
@@ -71,7 +71,7 @@ VL_INLINE_OPT void VPIPELINE::_sequent__TOP__2(VPIPELINE__Syms* __restrict vlSym
     VPIPELINE* const __restrict vlTOPp VL_ATTR_UNUSED = vlSymsp->TOPp;
     // Variables
     CData/*0:0*/ __Vdlyvset__PIPELINE__DOT__DataMemory__DOT__Dmemory__v0;
-    SData/*9:0*/ __Vdlyvdim0__PIPELINE__DOT__DataMemory__DOT__Dmemory__v0;
+    SData/*15:0*/ __Vdlyvdim0__PIPELINE__DOT__DataMemory__DOT__Dmemory__v0;
     IData/*31:0*/ __Vdlyvval__PIPELINE__DOT__DataMemory__DOT__Dmemory__v0;
     // Body
     __Vdlyvset__PIPELINE__DOT__DataMemory__DOT__Dmemory__v0 = 0U;
@@ -211,7 +211,7 @@ VL_INLINE_OPT void VPIPELINE::_sequent__TOP__2(VPIPELINE__Syms* __restrict vlSym
             = vlTOPp->PIPELINE__DOT__EX_MEM_M__DOT__io_EXMEM_rs2_out_REG;
         __Vdlyvset__PIPELINE__DOT__DataMemory__DOT__Dmemory__v0 = 1U;
         __Vdlyvdim0__PIPELINE__DOT__DataMemory__DOT__Dmemory__v0 
-            = (0x3ffU & vlTOPp->PIPELINE__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG);
+            = (0xffffU & vlTOPp->PIPELINE__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG);
     }
     vlTOPp->PIPELINE__DOT__MEM_WB_M__DOT__io_MEMWB_dataMem_out_REG 
         = vlTOPp->PIPELINE__DOT__DataMemory_io_dataOut;
@@ -646,7 +646,7 @@ VL_INLINE_OPT void VPIPELINE::_sequent__TOP__2(VPIPELINE__Syms* __restrict vlSym
     vlTOPp->PIPELINE__DOT__DataMemory_io_dataOut = 
         ((IData)(vlTOPp->PIPELINE__DOT__EX_MEM_M__DOT__io_EXMEM_memRd_out_REG)
           ? vlTOPp->PIPELINE__DOT__DataMemory__DOT__Dmemory
-         [(0x3ffU & vlTOPp->PIPELINE__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)]
+         [(0xffffU & vlTOPp->PIPELINE__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)]
           : 0U);
     vlTOPp->PIPELINE__DOT__ID_EX___DOT__io_ctrl_MemWr_out_REG 
         = ((~ (IData)(vlTOPp->PIPELINE__DOT__HazardDetect_io_ctrl_forward)) 

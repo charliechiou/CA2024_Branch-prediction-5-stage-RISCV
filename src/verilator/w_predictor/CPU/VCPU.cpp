@@ -71,7 +71,7 @@ VL_INLINE_OPT void VCPU::_sequent__TOP__2(VCPU__Syms* __restrict vlSymsp) {
     VCPU* const __restrict vlTOPp VL_ATTR_UNUSED = vlSymsp->TOPp;
     // Variables
     CData/*0:0*/ __Vdlyvset__CPU__DOT__DataMemory__DOT__Dmemory__v0;
-    SData/*11:0*/ __Vdlyvdim0__CPU__DOT__DataMemory__DOT__Dmemory__v0;
+    SData/*15:0*/ __Vdlyvdim0__CPU__DOT__DataMemory__DOT__Dmemory__v0;
     IData/*31:0*/ __Vdly__CPU__DOT__PC__DOT__PC;
     IData/*31:0*/ __Vdlyvval__CPU__DOT__DataMemory__DOT__Dmemory__v0;
     // Body
@@ -293,15 +293,11 @@ VL_INLINE_OPT void VCPU::_sequent__TOP__2(VCPU__Syms* __restrict vlSymsp) {
     vlTOPp->CPU__DOT__MEM_WB_M__DOT__io_MEMWB_alu_out_REG 
         = vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG;
     if (vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_memWr_out_REG) {
-        vlTOPp->CPU__DOT__DataMemory__DOT____Vlvbound1 
+        __Vdlyvval__CPU__DOT__DataMemory__DOT__Dmemory__v0 
             = vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_rs2_out_REG;
-        if ((0x800U >= (0xfffU & vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG))) {
-            __Vdlyvval__CPU__DOT__DataMemory__DOT__Dmemory__v0 
-                = vlTOPp->CPU__DOT__DataMemory__DOT____Vlvbound1;
-            __Vdlyvset__CPU__DOT__DataMemory__DOT__Dmemory__v0 = 1U;
-            __Vdlyvdim0__CPU__DOT__DataMemory__DOT__Dmemory__v0 
-                = (0xfffU & vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG);
-        }
+        __Vdlyvset__CPU__DOT__DataMemory__DOT__Dmemory__v0 = 1U;
+        __Vdlyvdim0__CPU__DOT__DataMemory__DOT__Dmemory__v0 
+            = (0xffffU & vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG);
     }
     vlTOPp->CPU__DOT__MEM_WB_M__DOT__io_MEMWB_dataMem_out_REG 
         = vlTOPp->CPU__DOT__DataMemory_io_dataOut;
@@ -769,17 +765,9 @@ VL_INLINE_OPT void VCPU::_sequent__TOP__2(VCPU__Syms* __restrict vlSymsp) {
            & ((0x33U != (0x7fU & vlTOPp->CPU__DOT__IF_ID___DOT__S_instr)) 
               & (IData)(vlTOPp->CPU__DOT__control_module__DOT___GEN_51)));
     vlTOPp->CPU__DOT__DataMemory_io_dataOut = ((IData)(vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_memRd_out_REG)
-                                                ? (
-                                                   (0x800U 
-                                                    >= 
-                                                    (0xfffU 
-                                                     & vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG))
-                                                    ? 
-                                                   vlTOPp->CPU__DOT__DataMemory__DOT__Dmemory
-                                                   [
-                                                   (0xfffU 
-                                                    & vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)]
-                                                    : 0U)
+                                                ? vlTOPp->CPU__DOT__DataMemory__DOT__Dmemory
+                                               [(0xffffU 
+                                                 & vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)]
                                                 : 0U);
     vlTOPp->CPU__DOT__ID_EX___DOT__io_ctrl_MemWr_out_REG 
         = ((~ (IData)(vlTOPp->CPU__DOT__HazardDetect_io_ctrl_forward)) 
