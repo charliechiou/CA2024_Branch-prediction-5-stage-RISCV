@@ -659,7 +659,7 @@ module InstMem(
 `endif // RANDOMIZE_MEM_INIT
   reg [31:0] imem [0:4095]; // @[InstMem.scala 12:17]
   initial begin
-        $readmemh("/home/james/my_cpu/test/output.hex", imem);  // 加载内存
+        $readmemh("/home/james/CA2024_Branch-prediction-5-stage-RISCV/src/verilator/test_cases/case2.hex", imem);  // 加载内存
   end
   wire [31:0] imem_io_data_MPORT_data; // @[InstMem.scala 12:17]
   wire [11:0] imem_io_data_MPORT_addr; // @[InstMem.scala 12:17]
