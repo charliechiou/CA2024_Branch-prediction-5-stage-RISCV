@@ -36,7 +36,7 @@ void VCPU::_initial__TOP__1(VCPU__Syms* __restrict vlSymsp) {
     // Body
     vlTOPp->io_out = 0U;
     __Vtemp1[0U] = 0x2e686578U;
-    __Vtemp1[1U] = 0x61736532U;
+    __Vtemp1[1U] = 0x61736533U;
     __Vtemp1[2U] = 0x65732f63U;
     __Vtemp1[3U] = 0x5f636173U;
     __Vtemp1[4U] = 0x74657374U;

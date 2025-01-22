@@ -1,39 +1,58 @@
 .section .text
 .global _start
 .data
-arr:
-        .word   456
-        .word   78
-        .word   -796
-        .word   456785
-        .word   3
-        .word   -12345
-        .word   98765
-        .word   4321
-        .word   -654
-        .word   0
 
 _start:
-		li	 	sp, 0x7ff
+        li	sp, 0x7ff
         addi    sp,sp,-16
         sw      ra,12(sp)
         sw      s0,8(sp)
         addi    s0,sp,16
         li      a1,10
-        lui     a5,%hi(arr)
-        addi    a0,a5,%lo(arr)
-        call    bubble_sort
+        li      a0, 0
+        mv      t0, a0
+        li      t2, 456
+        sw      t2, 0(t0)
+        addi    t0, t0, 4
+        li      t2, 78
+        sw      t2, 0(t0)
+        addi    t0, t0, 4
+        li      t2, -796
+        sw      t2, 0(t0)
+        addi    t0, t0, 4
+        li      t2, 468
+        sw      t2, 0(t0)
+        addi    t0, t0, 4
+        li      t2, 2
+        sw      t2, 0(t0)
+        addi    t0, t0, 4
+        li      t2, -125
+        sw      t2, 0(t0)
+        addi    t0, t0, 4
+        li      t2, 986
+        sw      t2, 0(t0)
+        addi    t0, t0, 4
+        li      t2, -321
+        sw      t2, 0(t0)
+        addi    t0, t0, 4
+        li      t2, 4
+        sw      t2, 0(t0)
+        addi    t0, t0, 4
+        li      t2, 0
+        sw      t2, 0(t0)
+        addi    t0, t0, 4      
+        jal     ra, bubble_sort
         li      a5,0
         mv      a0,a5
         lw      ra,12(sp)
         lw      s0,8(sp)
         addi    sp,sp,16
-		li		gp, 1
+        li	gp, 1
         jr      ra
 
 bubble_sort:
         addi    sp,sp,-48
-        sw      ra,44(sp)
+        #sw      ra,44(sp)
         sw      s0,40(sp)
         addi    s0,sp,48
         sw      a0,-36(s0)
@@ -106,7 +125,7 @@ bubble_sort:
         nop
 .L10:
         nop
-        lw      ra,44(sp)
+        #lw      ra,44(sp)
         lw      s0,40(sp)
         addi    sp,sp,48
         jr      ra
