@@ -659,7 +659,7 @@ module InstMem(
 `endif // RANDOMIZE_MEM_INIT
   reg [31:0] imem [0:4095]; // @[InstMem.scala 12:17]
   initial begin
-        $readmemh("/home/james/my_cpu/test/output.hex", imem);  // 加载内存
+        $readmemh("/home/james/CA2024_Branch-prediction-5-stage-RISCV/src/verilator/test_cases/case3.hex", imem);  // 加载内存
   end
   wire [31:0] imem_io_data_MPORT_data; // @[InstMem.scala 12:17]
   wire [11:0] imem_io_data_MPORT_addr; // @[InstMem.scala 12:17]
@@ -744,52 +744,6 @@ module DataMemory(
       Dmemory[Dmemory_MPORT_addr] <= Dmemory_MPORT_data; // @[DataMemory.scala 13:20]
     end
   end
-// Register and memory initialization
-`ifdef RANDOMIZE_GARBAGE_ASSIGN
-`define RANDOMIZE
-`endif
-`ifdef RANDOMIZE_INVALID_ASSIGN
-`define RANDOMIZE
-`endif
-`ifdef RANDOMIZE_REG_INIT
-`define RANDOMIZE
-`endif
-`ifdef RANDOMIZE_MEM_INIT
-`define RANDOMIZE
-`endif
-`ifndef RANDOM
-`define RANDOM $random
-`endif
-`ifdef RANDOMIZE_MEM_INIT
-  integer initvar;
-`endif
-`ifndef SYNTHESIS
-`ifdef FIRRTL_BEFORE_INITIAL
-`FIRRTL_BEFORE_INITIAL
-`endif
-initial begin
-  `ifdef RANDOMIZE
-    `ifdef INIT_RANDOM
-      `INIT_RANDOM
-    `endif
-    `ifndef VERILATOR
-      `ifdef RANDOMIZE_DELAY
-        #`RANDOMIZE_DELAY begin end
-      `else
-        #0.002 begin end
-      `endif
-    `endif
-`ifdef RANDOMIZE_MEM_INIT
-  _RAND_0 = {1{`RANDOM}};
-  for (initvar = 0; initvar < 1024; initvar = initvar+1)
-    Dmemory[initvar] = _RAND_0[31:0];
-`endif // RANDOMIZE_MEM_INIT
-  `endif // RANDOMIZE
-end // initial
-`ifdef FIRRTL_AFTER_INITIAL
-`FIRRTL_AFTER_INITIAL
-`endif
-`endif // SYNTHESIS
 endmodule
 module Control(
   input  [6:0] io_opcode,

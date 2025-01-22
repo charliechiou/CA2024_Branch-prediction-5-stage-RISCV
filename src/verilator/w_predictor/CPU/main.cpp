@@ -23,7 +23,7 @@ int main(int argc, char** argv, char** env)
     int cycle_count = 0;
     int branch_count = 0;
     int flush_count = 0;
-    for (size_t i = 0; i < 600; i++)
+    for (size_t i = 0; i < 1500; i++)
     {
         tick(dut);
         cycle_count++;
@@ -33,6 +33,7 @@ int main(int argc, char** argv, char** env)
             flush_count = dut->CPU__DOT__Branch_M_io_flush ? flush_count + 1: flush_count;
         }
         // printf("0x%08X\n", dut->CPU__DOT__PC__DOT__PC);
+        // printf("t0 : %d, t1 : %d\n", dut->CPU__DOT__RegFile__DOT__regfile_5, dut->CPU__DOT__RegFile__DOT__regfile_5);
         // if(i % 50 == 0)printf("gp register = 0x%08X\n", dut->CPU__DOT__RegFile__DOT__regfile_3);
         if(dut->CPU__DOT__RegFile__DOT__regfile_3 == 1)
         {

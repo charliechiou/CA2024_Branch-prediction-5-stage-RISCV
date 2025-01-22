@@ -32,19 +32,32 @@ void VCPU::_initial__TOP__1(VCPU__Syms* __restrict vlSymsp) {
     VL_DEBUG_IF(VL_DBG_MSGF("+    VCPU::_initial__TOP__1\n"); );
     VCPU* const __restrict vlTOPp VL_ATTR_UNUSED = vlSymsp->TOPp;
     // Variables
-    WData/*287:0*/ __Vtemp1[9];
+    WData/*703:0*/ __Vtemp1[22];
     // Body
     vlTOPp->io_out = 0U;
     __Vtemp1[0U] = 0x2e686578U;
-    __Vtemp1[1U] = 0x74707574U;
-    __Vtemp1[2U] = 0x742f6f75U;
-    __Vtemp1[3U] = 0x2f746573U;
-    __Vtemp1[4U] = 0x5f637075U;
-    __Vtemp1[5U] = 0x732f6d79U;
-    __Vtemp1[6U] = 0x6a616d65U;
-    __Vtemp1[7U] = 0x6f6d652fU;
-    __Vtemp1[8U] = 0x2f68U;
-    VL_READMEM_N(true, 32, 4096, 0, VL_CVT_PACK_STR_NW(9, __Vtemp1)
+    __Vtemp1[1U] = 0x61736533U;
+    __Vtemp1[2U] = 0x65732f63U;
+    __Vtemp1[3U] = 0x5f636173U;
+    __Vtemp1[4U] = 0x74657374U;
+    __Vtemp1[5U] = 0x746f722fU;
+    __Vtemp1[6U] = 0x72696c61U;
+    __Vtemp1[7U] = 0x632f7665U;
+    __Vtemp1[8U] = 0x562f7372U;
+    __Vtemp1[9U] = 0x52495343U;
+    __Vtemp1[0xaU] = 0x6167652dU;
+    __Vtemp1[0xbU] = 0x352d7374U;
+    __Vtemp1[0xcU] = 0x696f6e2dU;
+    __Vtemp1[0xdU] = 0x64696374U;
+    __Vtemp1[0xeU] = 0x2d707265U;
+    __Vtemp1[0xfU] = 0x616e6368U;
+    __Vtemp1[0x10U] = 0x345f4272U;
+    __Vtemp1[0x11U] = 0x41323032U;
+    __Vtemp1[0x12U] = 0x65732f43U;
+    __Vtemp1[0x13U] = 0x2f6a616dU;
+    __Vtemp1[0x14U] = 0x686f6d65U;
+    __Vtemp1[0x15U] = 0x2fU;
+    VL_READMEM_N(true, 32, 4096, 0, VL_CVT_PACK_STR_NW(22, __Vtemp1)
                  , vlTOPp->CPU__DOT__InstMemory__DOT__imem
                  , 0, ~0ULL);
 }
