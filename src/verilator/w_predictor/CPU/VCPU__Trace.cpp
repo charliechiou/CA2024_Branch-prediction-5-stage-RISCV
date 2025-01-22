@@ -655,12 +655,9 @@ void VCPU::traceChgSub0(void* userp, VerilatedVcd* tracep) {
                                                 >> 8U))),4);
             tracep->chgSData(oldp+101,((0xfffU & (vlTOPp->CPU__DOT__PC__DOT__PC 
                                                   >> 2U))),12);
-            tracep->chgIData(oldp+102,(((0x800U >= 
-                                         (0xfffU & vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG))
-                                         ? vlTOPp->CPU__DOT__DataMemory__DOT__Dmemory
-                                        [(0xfffU & vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)]
-                                         : 0U)),32);
-            tracep->chgSData(oldp+103,((0xfffU & vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)),12);
+            tracep->chgIData(oldp+102,(vlTOPp->CPU__DOT__DataMemory__DOT__Dmemory
+                                       [(0xffffU & vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)]),32);
+            tracep->chgSData(oldp+103,((0xffffU & vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)),16);
             tracep->chgIData(oldp+104,(((0x80000000U 
                                          & vlTOPp->CPU__DOT__IF_ID___DOT__S_instr)
                                          ? 0xfffffU

@@ -551,7 +551,7 @@ module InstMem(
 `endif // RANDOMIZE_MEM_INIT
   reg [31:0] imem [0:4095]; // @[InstMem.scala 12:17]
   initial begin
-        $readmemh("/home/james/CA2024_Branch-prediction-5-stage-RISCV/src/verilator/test_cases/case2.hex", imem);  // 加载内存
+        $readmemh("/home/james/CA2024_Branch-prediction-5-stage-RISCV/src/verilator/test_cases/case3.hex", imem);  
   end
   wire [31:0] imem_io_data_MPORT_data; // @[InstMem.scala 12:17]
   wire [11:0] imem_io_data_MPORT_addr; // @[InstMem.scala 12:17]
@@ -617,17 +617,17 @@ module DataMemory(
 `ifdef RANDOMIZE_MEM_INIT
   reg [31:0] _RAND_0;
 `endif // RANDOMIZE_MEM_INIT
-  reg [31:0] Dmemory [0:1023]; // @[DataMemory.scala 13:20]
+  reg  [31:0] Dmemory [0:65535]; // @[DataMemory.scala 13:20]
   wire [31:0] Dmemory_io_dataOut_MPORT_data; // @[DataMemory.scala 13:20]
-  wire [9:0] Dmemory_io_dataOut_MPORT_addr; // @[DataMemory.scala 13:20]
+  wire [15:0] Dmemory_io_dataOut_MPORT_addr; // @[DataMemory.scala 13:20]
   wire [31:0] Dmemory_MPORT_data; // @[DataMemory.scala 13:20]
-  wire [9:0] Dmemory_MPORT_addr; // @[DataMemory.scala 13:20]
+  wire [15:0] Dmemory_MPORT_addr; // @[DataMemory.scala 13:20]
   wire  Dmemory_MPORT_mask; // @[DataMemory.scala 13:20]
   wire  Dmemory_MPORT_en; // @[DataMemory.scala 13:20]
-  assign Dmemory_io_dataOut_MPORT_addr = io_addr[9:0];
+  assign Dmemory_io_dataOut_MPORT_addr = io_addr[15:0];
   assign Dmemory_io_dataOut_MPORT_data = Dmemory[Dmemory_io_dataOut_MPORT_addr]; // @[DataMemory.scala 13:20]
   assign Dmemory_MPORT_data = io_dataIn;
-  assign Dmemory_MPORT_addr = io_addr[9:0];
+  assign Dmemory_MPORT_addr = io_addr[15:0];
   assign Dmemory_MPORT_mask = 1'h1;
   assign Dmemory_MPORT_en = io_mem_write;
   assign io_dataOut = io_mem_read ? $signed(Dmemory_io_dataOut_MPORT_data) : $signed(32'sh0); // @[DataMemory.scala 19:21 DataMemory.scala 20:16 DataMemory.scala 14:14]
@@ -636,52 +636,6 @@ module DataMemory(
       Dmemory[Dmemory_MPORT_addr] <= Dmemory_MPORT_data; // @[DataMemory.scala 13:20]
     end
   end
-// Register and memory initialization
-`ifdef RANDOMIZE_GARBAGE_ASSIGN
-`define RANDOMIZE
-`endif
-`ifdef RANDOMIZE_INVALID_ASSIGN
-`define RANDOMIZE
-`endif
-`ifdef RANDOMIZE_REG_INIT
-`define RANDOMIZE
-`endif
-`ifdef RANDOMIZE_MEM_INIT
-`define RANDOMIZE
-`endif
-`ifndef RANDOM
-`define RANDOM $random
-`endif
-`ifdef RANDOMIZE_MEM_INIT
-  integer initvar;
-`endif
-`ifndef SYNTHESIS
-`ifdef FIRRTL_BEFORE_INITIAL
-`FIRRTL_BEFORE_INITIAL
-`endif
-initial begin
-  `ifdef RANDOMIZE
-    `ifdef INIT_RANDOM
-      `INIT_RANDOM
-    `endif
-    `ifndef VERILATOR
-      `ifdef RANDOMIZE_DELAY
-        #`RANDOMIZE_DELAY begin end
-      `else
-        #0.002 begin end
-      `endif
-    `endif
-`ifdef RANDOMIZE_MEM_INIT
-  _RAND_0 = {1{`RANDOM}};
-  for (initvar = 0; initvar < 1024; initvar = initvar+1)
-    Dmemory[initvar] = _RAND_0[31:0];
-`endif // RANDOMIZE_MEM_INIT
-  `endif // RANDOMIZE
-end // initial
-`ifdef FIRRTL_AFTER_INITIAL
-`FIRRTL_AFTER_INITIAL
-`endif
-`endif // SYNTHESIS
 endmodule
 module Control(
   input  [6:0] io_opcode,

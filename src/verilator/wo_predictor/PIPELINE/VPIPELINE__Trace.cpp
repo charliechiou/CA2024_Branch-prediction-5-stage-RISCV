@@ -681,8 +681,8 @@ void VPIPELINE::traceChgSub0(void* userp, VerilatedVcd* tracep) {
             tracep->chgSData(oldp+95,((0xfffU & (vlTOPp->PIPELINE__DOT__PC__DOT__PC 
                                                  >> 2U))),12);
             tracep->chgIData(oldp+96,(vlTOPp->PIPELINE__DOT__DataMemory__DOT__Dmemory
-                                      [(0x3ffU & vlTOPp->PIPELINE__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)]),32);
-            tracep->chgSData(oldp+97,((0x3ffU & vlTOPp->PIPELINE__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)),10);
+                                      [(0xffffU & vlTOPp->PIPELINE__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)]),32);
+            tracep->chgSData(oldp+97,((0xffffU & vlTOPp->PIPELINE__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)),16);
             tracep->chgIData(oldp+98,(((0x80000000U 
                                         & vlTOPp->PIPELINE__DOT__IF_ID___DOT__S_instr)
                                         ? 0xfffffU : 0U)),20);

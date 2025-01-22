@@ -23,7 +23,7 @@ int main(int argc, char** argv, char** env)
     int cycle_count = 0;
     int branch_count = 0;
     int flush_count = 0;
-    for (size_t i = 0; i < 600; i++)
+    for (size_t i = 0; i < 1500; i++)
     {
         tick(dut);
         cycle_count++;

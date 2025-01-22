@@ -36,7 +36,7 @@ void VPIPELINE::_initial__TOP__1(VPIPELINE__Syms* __restrict vlSymsp) {
     // Body
     vlTOPp->io_out = 0U;
     __Vtemp1[0U] = 0x2e686578U;
-    __Vtemp1[1U] = 0x61736532U;
+    __Vtemp1[1U] = 0x61736533U;
     __Vtemp1[2U] = 0x65732f63U;
     __Vtemp1[3U] = 0x5f636173U;
     __Vtemp1[4U] = 0x74657374U;
@@ -82,7 +82,7 @@ void VPIPELINE::_settle__TOP__3(VPIPELINE__Syms* __restrict vlSymsp) {
     vlTOPp->PIPELINE__DOT__DataMemory_io_dataOut = 
         ((IData)(vlTOPp->PIPELINE__DOT__EX_MEM_M__DOT__io_EXMEM_memRd_out_REG)
           ? vlTOPp->PIPELINE__DOT__DataMemory__DOT__Dmemory
-         [(0x3ffU & vlTOPp->PIPELINE__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)]
+         [(0xffffU & vlTOPp->PIPELINE__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)]
           : 0U);
     vlTOPp->PIPELINE__DOT__Forwarding__DOT___T_11 = 
         (((IData)(vlTOPp->PIPELINE__DOT__EX_MEM_M__DOT__io_EXMEM_reg_w_out_REG) 
@@ -1230,7 +1230,7 @@ void VPIPELINE::_ctor_var_reset() {
     { int __Vi0=0; for (; __Vi0<4096; ++__Vi0) {
             PIPELINE__DOT__InstMemory__DOT__imem[__Vi0] = VL_RAND_RESET_I(32);
     }}
-    { int __Vi0=0; for (; __Vi0<1024; ++__Vi0) {
+    { int __Vi0=0; for (; __Vi0<65536; ++__Vi0) {
             PIPELINE__DOT__DataMemory__DOT__Dmemory[__Vi0] = VL_RAND_RESET_I(32);
     }}
     PIPELINE__DOT__control_module__DOT___GEN_5 = VL_RAND_RESET_I(1);

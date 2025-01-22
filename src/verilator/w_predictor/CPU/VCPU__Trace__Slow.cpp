@@ -360,9 +360,9 @@ void VCPU::traceInitSub0(void* userp, VerilatedVcd* tracep) {
         tracep->declBit(c+42,"CPU DataMemory io_mem_write", false,-1);
         tracep->declBus(c+48,"CPU DataMemory io_dataOut", false,-1, 31,0);
         tracep->declBus(c+103,"CPU DataMemory Dmemory_io_dataOut_MPORT_data", false,-1, 31,0);
-        tracep->declBus(c+104,"CPU DataMemory Dmemory_io_dataOut_MPORT_addr", false,-1, 11,0);
+        tracep->declBus(c+104,"CPU DataMemory Dmemory_io_dataOut_MPORT_addr", false,-1, 15,0);
         tracep->declBus(c+45,"CPU DataMemory Dmemory_MPORT_data", false,-1, 31,0);
-        tracep->declBus(c+104,"CPU DataMemory Dmemory_MPORT_addr", false,-1, 11,0);
+        tracep->declBus(c+104,"CPU DataMemory Dmemory_MPORT_addr", false,-1, 15,0);
         tracep->declBit(c+150,"CPU DataMemory Dmemory_MPORT_mask", false,-1);
         tracep->declBit(c+42,"CPU DataMemory Dmemory_MPORT_en", false,-1);
         tracep->declBus(c+63,"CPU control_module io_opcode", false,-1, 6,0);
@@ -1108,12 +1108,9 @@ void VCPU::traceFullSub0(void* userp, VerilatedVcd* tracep) {
                                              >> 8U))),4);
         tracep->fullSData(oldp+102,((0xfffU & (vlTOPp->CPU__DOT__PC__DOT__PC 
                                                >> 2U))),12);
-        tracep->fullIData(oldp+103,(((0x800U >= (0xfffU 
-                                                 & vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG))
-                                      ? vlTOPp->CPU__DOT__DataMemory__DOT__Dmemory
-                                     [(0xfffU & vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)]
-                                      : 0U)),32);
-        tracep->fullSData(oldp+104,((0xfffU & vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)),12);
+        tracep->fullIData(oldp+103,(vlTOPp->CPU__DOT__DataMemory__DOT__Dmemory
+                                    [(0xffffU & vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)]),32);
+        tracep->fullSData(oldp+104,((0xffffU & vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)),16);
         tracep->fullIData(oldp+105,(((0x80000000U & vlTOPp->CPU__DOT__IF_ID___DOT__S_instr)
                                       ? 0xfffffU : 0U)),20);
         tracep->fullSData(oldp+106,((0xfffU & (vlTOPp->CPU__DOT__IF_ID___DOT__S_instr 

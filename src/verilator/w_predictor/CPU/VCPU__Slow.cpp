@@ -97,17 +97,9 @@ void VCPU::_settle__TOP__3(VCPU__Syms* __restrict vlSymsp) {
                                   ? vlTOPp->CPU__DOT__MEM_WB_M__DOT__io_MEMWB_dataMem_out_REG
                                   : 0U);
     vlTOPp->CPU__DOT__DataMemory_io_dataOut = ((IData)(vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_memRd_out_REG)
-                                                ? (
-                                                   (0x800U 
-                                                    >= 
-                                                    (0xfffU 
-                                                     & vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG))
-                                                    ? 
-                                                   vlTOPp->CPU__DOT__DataMemory__DOT__Dmemory
-                                                   [
-                                                   (0xfffU 
-                                                    & vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)]
-                                                    : 0U)
+                                                ? vlTOPp->CPU__DOT__DataMemory__DOT__Dmemory
+                                               [(0xffffU 
+                                                 & vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)]
                                                 : 0U);
     vlTOPp->CPU__DOT__Forwarding__DOT___T_11 = (((IData)(vlTOPp->CPU__DOT__EX_MEM_M__DOT__io_EXMEM_reg_w_out_REG) 
                                                  & (0U 
@@ -1237,10 +1229,9 @@ void VCPU::_ctor_var_reset() {
             CPU__DOT__InstMemory__DOT__imem[__Vi0] = VL_RAND_RESET_I(32);
     }}
     CPU__DOT__InstMemory__DOT__imem_io_data_MPORT_data = VL_RAND_RESET_I(32);
-    { int __Vi0=0; for (; __Vi0<2049; ++__Vi0) {
+    { int __Vi0=0; for (; __Vi0<65536; ++__Vi0) {
             CPU__DOT__DataMemory__DOT__Dmemory[__Vi0] = VL_RAND_RESET_I(32);
     }}
-    CPU__DOT__DataMemory__DOT____Vlvbound1 = VL_RAND_RESET_I(32);
     CPU__DOT__control_module__DOT___GEN_5 = VL_RAND_RESET_I(1);
     CPU__DOT__control_module__DOT___GEN_51 = VL_RAND_RESET_I(1);
     CPU__DOT__RegFile__DOT__regfile_0 = VL_RAND_RESET_I(32);

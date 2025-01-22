@@ -337,9 +337,9 @@ void VPIPELINE::traceInitSub0(void* userp, VerilatedVcd* tracep) {
         tracep->declBit(c+40,"PIPELINE DataMemory io_mem_write", false,-1);
         tracep->declBus(c+46,"PIPELINE DataMemory io_dataOut", false,-1, 31,0);
         tracep->declBus(c+97,"PIPELINE DataMemory Dmemory_io_dataOut_MPORT_data", false,-1, 31,0);
-        tracep->declBus(c+98,"PIPELINE DataMemory Dmemory_io_dataOut_MPORT_addr", false,-1, 9,0);
+        tracep->declBus(c+98,"PIPELINE DataMemory Dmemory_io_dataOut_MPORT_addr", false,-1, 15,0);
         tracep->declBus(c+43,"PIPELINE DataMemory Dmemory_MPORT_data", false,-1, 31,0);
-        tracep->declBus(c+98,"PIPELINE DataMemory Dmemory_MPORT_addr", false,-1, 9,0);
+        tracep->declBus(c+98,"PIPELINE DataMemory Dmemory_MPORT_addr", false,-1, 15,0);
         tracep->declBit(c+149,"PIPELINE DataMemory Dmemory_MPORT_mask", false,-1);
         tracep->declBit(c+40,"PIPELINE DataMemory Dmemory_MPORT_en", false,-1);
         tracep->declBus(c+57,"PIPELINE control_module io_opcode", false,-1, 6,0);
@@ -1120,8 +1120,8 @@ void VPIPELINE::traceFullSub0(void* userp, VerilatedVcd* tracep) {
         tracep->fullSData(oldp+96,((0xfffU & (vlTOPp->PIPELINE__DOT__PC__DOT__PC 
                                               >> 2U))),12);
         tracep->fullIData(oldp+97,(vlTOPp->PIPELINE__DOT__DataMemory__DOT__Dmemory
-                                   [(0x3ffU & vlTOPp->PIPELINE__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)]),32);
-        tracep->fullSData(oldp+98,((0x3ffU & vlTOPp->PIPELINE__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)),10);
+                                   [(0xffffU & vlTOPp->PIPELINE__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)]),32);
+        tracep->fullSData(oldp+98,((0xffffU & vlTOPp->PIPELINE__DOT__EX_MEM_M__DOT__io_EXMEM_alu_out_REG)),16);
         tracep->fullIData(oldp+99,(((0x80000000U & vlTOPp->PIPELINE__DOT__IF_ID___DOT__S_instr)
                                      ? 0xfffffU : 0U)),20);
         tracep->fullSData(oldp+100,((0xfffU & (vlTOPp->PIPELINE__DOT__IF_ID___DOT__S_instr 

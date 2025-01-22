@@ -166,13 +166,12 @@ VL_MODULE(VCPU) {
     struct {
         QData/*62:0*/ CPU__DOT__ALU__DOT___GEN_10;
         IData/*31:0*/ CPU__DOT__InstMemory__DOT__imem[4096];
-        IData/*31:0*/ CPU__DOT__DataMemory__DOT__Dmemory[2049];
+        IData/*31:0*/ CPU__DOT__DataMemory__DOT__Dmemory[65536];
     };
     
     // LOCAL VARIABLES
     // Internals; generally not touched by application code
     CData/*0:0*/ __Vclklast__TOP__clock;
-    IData/*31:0*/ CPU__DOT__DataMemory__DOT____Vlvbound1;
     CData/*0:0*/ __Vm_traceActivity[2];
     
     // INTERNAL VARIABLES
